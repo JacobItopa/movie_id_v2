@@ -22,7 +22,7 @@ async def download_video(url: str) -> str:
     ydl_opts = {
         'format': 'best[ext=mp4]/best', # More robust format selection for Shorts
         'outtmpl': output_path,
-        # 'proxy': proxy_url, # Disabled proxy to avoid 402 Payment Required errors
+        'proxy': proxy_url,
         'quiet': True,
         'no_warnings': True,
         'nocheckcertificate': True, 
