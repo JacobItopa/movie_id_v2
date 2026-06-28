@@ -4,7 +4,7 @@ services:
     name: movie-id-backend
     env: python
     rootDir: backend
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: "pip install --upgrade pip && (pip install -r requirements.txt || pip install -r backend/requirements.txt)"
     startCommand: "gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker"
     envVars:
       - key: PYTHON_VERSION
