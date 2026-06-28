@@ -11,8 +11,8 @@ async def download_video(url: str) -> str:
     if not zenrows_key:
         raise ValueError("ZENROWS_API_KEY is missing")
 
-    # Construct the ZenRows proxy URL
-    proxy_url = f"http://{zenrows_key}:@proxy.zenrows.com:8001"
+    # Construct the ZenRows proxy URL using premium residential proxies
+    proxy_url = f"http://{zenrows_key}&premium_proxy=true:@proxy.zenrows.com:8001"
     
     # Generate a unique filename for the download
     output_filename = f"temp_video_{uuid.uuid4().hex}.mp4"
@@ -23,6 +23,7 @@ async def download_video(url: str) -> str:
         'format': 'best[ext=mp4]/best', # More robust format selection for Shorts
         'outtmpl': output_path,
         'proxy': proxy_url,
+        'extractor_args': {'youtube': ['player_client=android,ios']},
         'quiet': True,
         'no_warnings': True,
         'nocheckcertificate': True, 
