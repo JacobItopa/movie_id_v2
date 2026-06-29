@@ -14,14 +14,14 @@ async def download_video(url: str) -> str:
     # Construct the ScraperAPI proxy URL
     proxy_url = f"http://scraperapi:{scraperapi_key}@proxy-server.scraperapi.com:8001"
     
-    # Generate a unique filename for the download
-    output_filename = f"temp_video_{uuid.uuid4().hex}.mp4"
-    output_path = os.path.join(os.path.dirname(__file__), "..", output_filename)
-    output_path = os.path.abspath(output_path)
+    # Generate a unique filename template allowing yt-dlp to choose the correct extension
+    output_filename_template = f"temp_video_{uuid.uuid4().hex}.%(ext)s"
+    output_path_template = os.path.join(os.path.dirname(__file__), "..", output_filename_template)
+    output_path_template = os.path.abspath(output_path_template)
 
     ydl_opts = {
         'format': 'best[ext=mp4]/b/bestvideo/best', # Extremely robust fallback chain
-        'outtmpl': output_path,
+        'outtmpl': output_path_template,
         'proxy': proxy_url,
         'extractor_args': {'youtube': ['player_client=android,ios']},
         'quiet': True,
@@ -32,10 +32,11 @@ async def download_video(url: str) -> str:
     print(f"Downloading video from {url}...")
     try:
          with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+            info_dict = ydl.extract_info(url, download=True)
+            downloaded_file_path = ydl.prepare_filename(info_dict)
             
-         if os.path.exists(output_path):
-             return output_path
+         if os.path.exists(downloaded_file_path):
+             return downloaded_file_path
          else:
              print("Download completed but file not found.")
              return None
