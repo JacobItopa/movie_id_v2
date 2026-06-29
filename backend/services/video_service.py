@@ -21,10 +21,9 @@ async def download_video(url: str) -> str:
     output_path_template = os.path.abspath(output_path_template)
 
     ydl_opts = {
-        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best', 
+        'format': '18/best[ext=mp4]/b', # 18 is the golden standard 360p pre-merged MP4 format that never requires ffmpeg
         'outtmpl': output_path_template,
         'proxy': proxy_url,
-        'ffmpeg_location': imageio_ffmpeg.get_ffmpeg_exe(),
         'extractor_args': {'youtube': ['player_client=android,ios']},
         'socket_timeout': 60,
         'retries': 10,
