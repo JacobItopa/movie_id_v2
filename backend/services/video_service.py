@@ -20,7 +20,7 @@ async def download_video(url: str) -> str:
     output_path = os.path.abspath(output_path)
 
     ydl_opts = {
-        'format': 'b', # Request the best pre-merged format to avoid format missing errors
+        'format': 'best[ext=mp4]/b/bestvideo/best', # Extremely robust fallback chain
         'outtmpl': output_path,
         'proxy': proxy_url,
         'extractor_args': {'youtube': ['player_client=android,ios']},
