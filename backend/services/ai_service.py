@@ -18,7 +18,7 @@ async def identify_movie(video_path: str) -> dict:
     # Dynamically determine the mime type so Gemini doesn't reject it as a generic binary file
     mime_type, _ = mimetypes.guess_type(video_path)
     if not mime_type:
-        mime_type = "video/mp4" # fallback
+        mime_type = "image/jpeg" # fallback for thumbnails
         
     file_size = os.path.getsize(video_path)
     print(f"Uploading {video_path} (Size: {file_size} bytes, MimeType: {mime_type}) to Gemini...")
@@ -26,19 +26,19 @@ async def identify_movie(video_path: str) -> dict:
     
     print(f"Completed upload: {video_file.uri}")
     
-    # Wait for the file to be processed by Gemini
+    # Wait for the file to be processed by Gemini (images usually process instantly)
     while video_file.state.name == "PROCESSING":
         print(".", end="", flush=True)
         time.sleep(2)
         video_file = genai.get_file(video_file.name)
         
     if video_file.state.name == "FAILED":
-        raise ValueError("Gemini failed to process the video.")
+        raise ValueError("Gemini failed to process the image.")
         
-    print("Video processed. Querying model...")
+    print("Image processed. Querying model...")
 
     prompt = (
-        "Watch this short video clip. Your task is to identify the movie or TV show it is from. "
+        "Look at this thumbnail image from a short video clip. Your task is to identify the movie or TV show it is from. "
         "Return ONLY a JSON object with two keys: 'title' (the name of the movie/show) and 'year' (the release year). "
         "Do not include any markdown formatting like ```json or any other text. Just the raw JSON object."
     )

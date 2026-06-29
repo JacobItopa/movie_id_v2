@@ -1,49 +1,50 @@
 import os
 import yt_dlp
 import uuid
-import imageio_ffmpeg
+import urllib.request
 
 async def download_video(url: str) -> str:
     """
-    Downloads a video from YouTube using yt-dlp through the ZenRows proxy.
-    Returns the path to the downloaded video file.
+    Downloads the high-quality thumbnail of the video instead of the full video.
+    This completely bypasses proxy streaming errors, timeouts, and Gemini parsing failures!
+    Returns the path to the downloaded image file.
     """
     scraperapi_key = os.getenv("SCRAPER_API_KEY")
     if not scraperapi_key:
         raise ValueError("SCRAPER_API_KEY is missing")
 
-    # Construct the ScraperAPI proxy URL
     proxy_url = f"http://scraperapi:{scraperapi_key}@proxy-server.scraperapi.com:8001"
     
-    # Generate a unique filename template allowing yt-dlp to choose the correct extension
-    output_filename_template = f"temp_video_{uuid.uuid4().hex}.%(ext)s"
-    output_path_template = os.path.join(os.path.dirname(__file__), "..", output_filename_template)
-    output_path_template = os.path.abspath(output_path_template)
-
     ydl_opts = {
-        'format': '18/best[ext=mp4]/b', # 18 is the golden standard 360p pre-merged MP4 format that never requires ffmpeg
-        'outtmpl': output_path_template,
         'proxy': proxy_url,
         'extractor_args': {'youtube': ['player_client=android,ios']},
-        'socket_timeout': 60,
-        'retries': 10,
-        'fragment_retries': 10,
         'quiet': True,
         'no_warnings': True,
         'nocheckcertificate': True, 
     }
 
-    print(f"Downloading video from {url}...")
+    print(f"Extracting metadata for {url}...")
     try:
          with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
-            downloaded_file_path = ydl.prepare_filename(info_dict)
+            info_dict = ydl.extract_info(url, download=False)
+            thumbnail_url = info_dict.get('thumbnail')
             
-         if os.path.exists(downloaded_file_path):
-             return downloaded_file_path
-         else:
-             print("Download completed but file not found.")
-             return None
+            if not thumbnail_url:
+                print("No thumbnail found.")
+                return None
+                
+            # Download the thumbnail image
+            output_filename = f"temp_image_{uuid.uuid4().hex}.jpg"
+            output_path = os.path.join(os.path.dirname(__file__), "..", output_filename)
+            output_path = os.path.abspath(output_path)
+            
+            print(f"Downloading thumbnail from {thumbnail_url}...")
+            # We don't need a proxy to download the thumbnail image from YouTube's CDN
+            urllib.request.urlretrieve(thumbnail_url, output_path)
+            
+            if os.path.exists(output_path):
+                return output_path
+            return None
     except Exception as e:
-        print(f"Error downloading video: {e}")
+        print(f"Error fetching thumbnail: {e}")
         return None
