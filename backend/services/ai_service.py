@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import mimetypes
 import google.generativeai as genai
 
 async def identify_movie(video_path: str) -> dict:
@@ -14,8 +15,14 @@ async def identify_movie(video_path: str) -> dict:
 
     genai.configure(api_key=gemini_key)
     
-    print(f"Uploading {video_path} to Gemini...")
-    video_file = genai.upload_file(path=video_path)
+    # Dynamically determine the mime type so Gemini doesn't reject it as a generic binary file
+    mime_type, _ = mimetypes.guess_type(video_path)
+    if not mime_type:
+        mime_type = "video/mp4" # fallback
+        
+    file_size = os.path.getsize(video_path)
+    print(f"Uploading {video_path} (Size: {file_size} bytes, MimeType: {mime_type}) to Gemini...")
+    video_file = genai.upload_file(path=video_path, mime_type=mime_type)
     
     print(f"Completed upload: {video_file.uri}")
     
