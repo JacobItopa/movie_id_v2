@@ -1,6 +1,7 @@
 import os
 import yt_dlp
 import uuid
+import imageio_ffmpeg
 
 async def download_video(url: str) -> str:
     """
@@ -20,9 +21,10 @@ async def download_video(url: str) -> str:
     output_path_template = os.path.abspath(output_path_template)
 
     ydl_opts = {
-        'format': 'best[ext=mp4]/b/bestvideo/best', # Extremely robust fallback chain
+        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best', 
         'outtmpl': output_path_template,
         'proxy': proxy_url,
+        'ffmpeg_location': imageio_ffmpeg.get_ffmpeg_exe(),
         'extractor_args': {'youtube': ['player_client=android,ios']},
         'quiet': True,
         'no_warnings': True,
