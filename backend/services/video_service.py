@@ -7,12 +7,12 @@ async def download_video(url: str) -> str:
     Downloads a video from YouTube using yt-dlp through the ZenRows proxy.
     Returns the path to the downloaded video file.
     """
-    zenrows_key = os.getenv("ZENROWS_API_KEY")
-    if not zenrows_key:
-        raise ValueError("ZENROWS_API_KEY is missing")
+    scraperapi_key = os.getenv("SCRAPER_API_KEY")
+    if not scraperapi_key:
+        raise ValueError("SCRAPER_API_KEY is missing")
 
-    # Construct the ZenRows proxy URL using premium residential proxies
-    proxy_url = f"http://{zenrows_key}&premium_proxy=true:@proxy.zenrows.com:8001"
+    # Construct the ScraperAPI proxy URL
+    proxy_url = f"http://scraperapi:{scraperapi_key}@proxy-server.scraperapi.com:8001"
     
     # Generate a unique filename for the download
     output_filename = f"temp_video_{uuid.uuid4().hex}.mp4"

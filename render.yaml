@@ -13,7 +13,7 @@ services:
         sync: false
       - key: TAVILY_API_KEY
         sync: false
-      - key: ZENROWS_API_KEY
+      - key: SCRAPER_API_KEY
         sync: false
 
   # Frontend Service (Next.js)
